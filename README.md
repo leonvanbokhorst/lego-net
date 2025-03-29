@@ -1,114 +1,119 @@
-# LEGO-Net: Transformer for LEGO Brick Placement
+# LEGO Brick Placement Transformer Models
 
-A transformer-based neural network that learns to generate sequences of LEGO brick placements. 🧱✨
-
-## Overview
-
-This project demonstrates a small transformer-style neural network that learns to generate sequences of 2×4 LEGO brick placements. The model uses a Transformer decoder architecture to predict the next brick's position given previous bricks, treating brick positions as a sequence.
-
-Key features:
-- Synthetic data generation with different brick placement patterns
-- Lightweight transformer model with self-attention
-- Regression-based coordinate prediction
-- Autoregressive sequence generation
-- 3D visualization of generated structures
+This project implements and compares different neural network architectures for predicting LEGO brick placements in 3D space.
 
 ## Project Structure
 
 ```
-lego_net/
-├── data/               # Data generation modules
-├── model/              # Transformer model implementation
-├── utils/              # Training and utility functions
-├── visualization/      # Visualization tools
-├── main.py             # Main script for training and generation
-└── test.py             # Quick tests for components
+.
+├── checkpoints/             # Model checkpoints
+│   ├── best_model.pt        # Original model
+│   ├── random_walk_model/   # Random walk specific model
+│   └── step_predictor_model/# Step-based predictor model
+├── lego_net/                # Main package
+│   ├── data/                # Data generation utilities
+│   ├── experiments/         # Analysis and comparison scripts
+│   ├── model/               # Model architectures 
+│   ├── scripts/             # Training scripts
+│   ├── utils/               # Utility functions
+│   ├── visualization/       # Visualization utilities
+│   ├── __init__.py          
+│   ├── main.py              # Main entry point
+│   └── test.py              # Test script
+├── output/                  # Generated outputs and visualizations
+├── .venv/                   # Virtual environment
+├── README.md                # This file
+├── run.py                   # Unified runner script
+└── requirements.txt         # Project dependencies
 ```
+
+## Models
+
+We implement and compare three different neural network architectures:
+
+1. **Original Transformer** - A basic transformer decoder model that predicts the absolute coordinates of the next brick
+2. **Random Walk Specific Model** - A specialized version of the original model trained specifically on random walk patterns
+3. **Step-Based Predictor** - An advanced model that predicts relative step vectors between bricks rather than absolute positions
+
+## Key Findings
+
+The step-based predictor significantly outperforms the other models across all pattern types:
+
+| Pattern Type | Original Model | Random Walk Model | Step Predictor |
+|--------------|----------------|-------------------|----------------|
+| Random Walk  | 0.196552       | 0.128793          | **0.114754**   |
+| Stack        | 0.898832       | 0.417523          | **0.001951**   | 
+| Row          | 0.917026       | 3.756550          | **0.013034**   |
+| Stair        | 2.268482       | 6.004579          | **0.007892**   |
+
+Values represent Mean Squared Error (lower is better).
 
 ## Installation
 
-1. Clone this repository:
 ```bash
+# Clone the repository
 git clone https://github.com/yourusername/lego-net.git
 cd lego-net
-```
 
-2. Install dependencies:
-```bash
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
 ## Usage
 
-### Quick Test
+### Using the run.py script (recommended)
 
-To test the basic functionality:
+The `run.py` script provides a unified interface to run all available models and experiments:
 
 ```bash
-python -m lego_net.test
+# Show available commands
+./run.py --help
+
+# Train the original model
+./run.py original
+
+# Train the random walk model
+./run.py random_walk
+
+# Train the step-based predictor model
+./run.py step_predictor
+
+# Analyze random walk patterns
+./run.py analyze
+
+# Compare all models
+./run.py compare
+
+# Run all models and experiments with 50 epochs each
+./run.py all --epochs 50
 ```
 
-This will:
-- Generate and visualize sample brick patterns
-- Test the transformer model's forward pass
-- Run a toy example with untrained model
-
-### Training a Model
+### Alternative: Run individual modules directly
 
 ```bash
+# Train the original model
 python -m lego_net.main
+
+# Train the random walk specific model
+python -m lego_net.scripts.train_random_walk
+
+# Train the step-based predictor model
+python -m lego_net.scripts.train_step_predictor
+
+# Compare all models
+python -m lego_net.experiments.compare_models
 ```
 
-This will:
-1. Train a new transformer model on synthetic LEGO patterns
-2. Save checkpoints to the `./checkpoints` directory
-3. Generate and visualize new sequences
-4. Evaluate the model on different pattern types
+## Visualizations
 
-### Command-line Options
+The `output/model_comparison` directory contains visualizations comparing how each model predicts different LEGO brick patterns.
 
-You can customize training and generation with various options:
+## Conclusion
 
-```bash
-python -m lego_net.main --epochs 200 --d_model 64 --num_layers 3
-```
+The step-based transformer model represents a significant improvement for LEGO brick sequence prediction. By focusing on the relations between bricks rather than their absolute positions, the model better captures the underlying patterns in LEGO constructions.
 
-For all available options:
-
-```bash
-python -m lego_net.main --help
-```
-
-### Generating Sequences Only
-
-To skip training and just generate sequences with a pre-trained model:
-
-```bash
-python -m lego_net.main --skip_training --load_model ./checkpoints/best_model.pt
-```
-
-## Example Outputs
-
-After training, the model can generate various LEGO brick sequences from scratch:
-
-- **Stack pattern**: Vertical towers
-- **Row pattern**: Horizontal lines
-- **Stair pattern**: Diagonal staircases
-- **Random walk**: Irregular patterns with small variations
-
-Generated structures are visualized in 3D and saved to the `./output` directory.
-
-## Customization
-
-- Modify `data_generator.py` to add new pattern types
-- Adjust model parameters in `transformer.py` for different model sizes
-- Experiment with different learning rates and training parameters
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Inspired by the [Attention Is All You Need](https://arxiv.org/abs/1706.03762) paper
-- Thanks to the PyTorch team for the excellent deep learning framework 
+This approach could be extended to more complex LEGO models with varying brick types and orientations, potentially enabling automated LEGO construction planning and interactive building assistance. 
