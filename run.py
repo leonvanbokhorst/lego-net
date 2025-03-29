@@ -50,6 +50,26 @@ def main():
     # Compare models
     compare_parser = subparsers.add_parser("compare", help="Compare all models")
     
+    # LEGO visualization
+    lego_parser = subparsers.add_parser("lego", help="Generate LEGO brick visualizations")
+    lego_parser.add_argument("--pattern", type=str, default=None, 
+                            choices=["stack", "row", "stair", "random_walk"], 
+                            help="Pattern to visualize (all patterns if not specified)")
+    lego_parser.add_argument("--model", type=str, default=None,
+                            choices=["original", "random_walk", "step_predictor"],
+                            help="Model to use (all models if not specified)")
+    
+    # Single LEGO visualization
+    single_lego_parser = subparsers.add_parser("single_lego", help="Generate a single LEGO brick visualization")
+    single_lego_parser.add_argument("--pattern", type=str, required=True, 
+                                   choices=["stack", "row", "stair", "random_walk"], 
+                                   help="Pattern to visualize")
+    single_lego_parser.add_argument("--model", type=str, required=True,
+                                   choices=["original", "random_walk", "step_predictor"],
+                                   help="Model to use")
+    single_lego_parser.add_argument("--length", type=int, default=15,
+                                   help="Number of bricks to generate")
+    
     # All in one (run everything)
     all_parser = subparsers.add_parser("all", help="Run all models and experiments")
     all_parser.add_argument("--epochs", type=int, default=50, help="Number of epochs for each model")
@@ -81,6 +101,20 @@ def main():
         # Run the comparison
         run_module("lego_net.experiments.compare_models")
         
+    elif args.command == "lego":
+        # Run the LEGO visualization
+        run_module("lego_net.experiments.render_lego_comparisons")
+        
+    elif args.command == "single_lego":
+        # Create an inline Python script to call the single LEGO function with parameters
+        code = f"""
+from lego_net.experiments.render_lego_comparisons import render_single_lego_sequence
+render_single_lego_sequence('{args.pattern}', '{args.model}', {args.length})
+"""
+        cmd = [sys.executable, "-c", code]
+        print_header(f"Rendering single LEGO sequence: {args.pattern} pattern with {args.model} model")
+        subprocess.run(cmd)
+        
     elif args.command == "all":
         # Run everything
         
@@ -110,6 +144,9 @@ def main():
         
         # Run comparison
         run_module("lego_net.experiments.compare_models")
+        
+        # Generate LEGO visualizations
+        run_module("lego_net.experiments.render_lego_comparisons")
     
     else:
         parser.print_help()

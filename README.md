@@ -1,4 +1,4 @@
-# LEGO Brick Placement Transformer Models
+# LEGO Brick Placement Transformer Models 🧱✨
 
 This project implements and compares different neural network architectures for predicting LEGO brick placements in 3D space.
 
@@ -21,6 +21,11 @@ This project implements and compares different neural network architectures for 
 │   ├── main.py              # Main entry point
 │   └── test.py              # Test script
 ├── output/                  # Generated outputs and visualizations
+│   ├── model_comparison/    # Technical model comparisons
+│   └── lego_visualizations/ # LEGO brick visualizations
+│       ├── comparisons/     # Model comparison visualizations
+│       ├── models/          # Individual model visualizations
+│       └── single/          # Single sequence visualizations
 ├── .venv/                   # Virtual environment
 ├── README.md                # This file
 ├── run.py                   # Unified runner script
@@ -88,6 +93,12 @@ The `run.py` script provides a unified interface to run all available models and
 # Compare all models
 ./run.py compare
 
+# Generate LEGO brick visualizations
+./run.py lego
+
+# Generate a single LEGO sequence visualization
+./run.py single_lego --pattern stack --model step_predictor --length 15
+
 # Run all models and experiments with 50 epochs each
 ./run.py all --epochs 50
 ```
@@ -106,11 +117,33 @@ python -m lego_net.scripts.train_step_predictor
 
 # Compare all models
 python -m lego_net.experiments.compare_models
+
+# Generate LEGO visualizations
+python -m lego_net.experiments.render_lego_comparisons
 ```
 
 ## Visualizations
 
-The `output/model_comparison` directory contains visualizations comparing how each model predicts different LEGO brick patterns.
+### Technical Visualizations
+The `output/model_comparison` directory contains technical 3D scatter plots comparing how each model predicts different LEGO brick patterns.
+
+### LEGO Brick Visualizations 🧱
+For a more intuitive understanding, we also provide LEGO-style brick visualizations in the `output/lego_visualizations` directory. These show actual LEGO brick representations for each model's predictions, complete with:
+
+- Realistic 3D brick shapes with studs
+- Color-coded bricks by sequence order
+- Brick number labels
+- Comparison visualizations across models
+
+To generate these visualizations, run:
+```bash
+./run.py lego
+```
+
+Or for a single pattern and model:
+```bash
+./run.py single_lego --pattern row --model step_predictor
+```
 
 ## Conclusion
 
